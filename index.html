@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ใบงานโต้ตอบ: Kata Adjektif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #FF6F59;
+    --coral-dark: #D9502F;
+    --teal: #17A398;
+    --teal-dark: #0E7A72;
+    --gold: #FFC145;
+    --gold-dark: #C98A00;
+    --purple: #7B61FF;
+    --purple-dark: #5A3FD9;
+    --cream: #FFF9F0;
+    --ink: #2D2A26;
+    --muted: #8A8478;
+    --green-bg: #E4F8ED;
+    --green-fg: #1E8E5A;
+    --red-bg: #FDEAEA;
+    --red-fg: #C0392B;
+    --amber-bg: #FFF4DA;
+    --amber-fg: #9C6B00;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    font-family: 'Kanit', sans-serif;
+    color: var(--ink);
+    padding: 0 0 60px;
+  }
+  .hero {
+    background: linear-gradient(135deg, var(--purple) 0%, var(--coral) 100%);
+    padding: 40px 24px 56px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 85% 20%, rgba(255,255,255,0.18), transparent 45%),
+                radial-gradient(circle at 10% 85%, rgba(255,255,255,0.15), transparent 40%);
+  }
+  .hero h1 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+    position: relative;
+  }
+  .hero p {
+    margin: 10px 0 0;
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.95;
+    position: relative;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: -32px auto 0;
+    padding: 0 20px;
+    position: relative;
+  }
+  .instructions {
+    background: white;
+    border-radius: 18px;
+    padding: 18px 22px;
+    box-shadow: 0 8px 24px rgba(90, 63, 217, 0.12);
+    font-size: 15px;
+    margin-bottom: 22px;
+  }
+  .instructions b { color: var(--purple-dark); }
+  .scoreboard {
+    position: sticky;
+    top: 12px;
+    z-index: 5;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+  .score-pill {
+    background: white;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    color: var(--purple-dark);
+  }
+  .card {
+    background: white;
+    border-radius: 18px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    border-left: 8px solid var(--accent, var(--teal));
+  }
+  .qnum {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent, var(--teal));
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    margin-right: 8px;
+  }
+  .sentence { font-size: 17px; font-weight: 600; }
+  .gloss { font-size: 13.5px; color: var(--muted); margin: 4px 0 14px 34px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 10px; margin-left: 34px; }
+  .opt-btn {
+    border: none;
+    background: #F3F1EC;
+    color: var(--ink);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.15s ease;
+  }
+  .opt-btn:hover:not(:disabled) { background: #E9E5DC; }
+  .opt-btn:active:not(:disabled) { transform: scale(0.96); }
+  .opt-btn.selected { background: var(--purple); color: white; }
+  .opt-btn.correct { background: var(--green-bg); color: var(--green-fg); box-shadow: inset 0 0 0 2px var(--green-fg); }
+  .opt-btn.wrong { background: var(--red-bg); color: var(--red-fg); box-shadow: inset 0 0 0 2px var(--red-fg); }
+  .opt-btn:disabled { cursor: default; }
+  .feedback {
+    margin: 12px 0 0 34px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    padding: 10px 14px;
+    border-radius: 12px;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: var(--green-bg); color: var(--green-fg); }
+  .feedback.wrong { background: var(--red-bg); color: var(--red-fg); }
+  .feedback.warn { background: var(--amber-bg); color: var(--amber-fg); }
+  .answer-key {
+    margin: 12px 0 0 34px;
+    font-size: 13px;
+    color: var(--muted);
+    display: none;
+  }
+  .answer-key.show { display: block; }
+  .answer-key b { color: var(--teal-dark); }
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin: 24px 0 6px;
+  }
+  .btn {
+    flex: 1;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--coral); color: white; }
+  .btn-secondary { background: white; color: var(--purple-dark); box-shadow: inset 0 0 0 2px var(--purple); }
+  .btn-ghost { background: white; color: var(--muted); box-shadow: inset 0 0 0 2px #E4E0D6; flex: 0 0 auto; }
+  .error-msg { color: var(--red-fg); font-size: 13.5px; margin: -8px 0 14px; text-align: center; }
+  .summary {
+    border-radius: 18px;
+    padding: 20px 24px;
+    text-align: center;
+    margin-top: 8px;
+    display: none;
+  }
+  .summary.show { display: block; }
+  .summary.win { background: linear-gradient(135deg, #FFE8B0, #FFC145); }
+  .summary.mid { background: white; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+  .summary h2 { margin: 0 0 6px; font-size: 20px; }
+  .summary p { margin: 0; font-size: 14px; color: var(--ink); opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>แบบฝึกหัดระบุ Kata Adjektif</h1>
+  <p>คำคุณศัพท์ในภาษามลายู · 10 ข้อ</p>
+</div>
+
+<div class="wrap">
+  <div class="scoreboard"><div class="score-pill" id="scorePill">ตอบแล้ว 0 / 10</div></div>
+
+  <div class="instructions">
+    <b>คำชี้แจง:</b> อ่านประโยคภาษามลายูแต่ละข้อ แล้วแตะคำที่เป็น <b>Kata Adjektif</b> (คำคุณศัพท์) ในประโยคนั้น กดปุ่ม "แสดงเฉลย" ได้ทุกเมื่อเพื่อดูคำตอบที่ถูกต้อง
+  </div>
+
+  <div id="qlist"></div>
+
+  <div class="error-msg" id="errMsg" style="display:none;"></div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="checkAllBtn">ตรวจคำตอบทั้งหมด</button>
+    <button class="btn btn-secondary" id="keyBtn">แสดงเฉลย</button>
+    <button class="btn btn-ghost" id="resetBtn" aria-label="เริ่มใหม่">↺</button>
+  </div>
+
+  <div class="summary" id="summary"></div>
+</div>
+
+<script>
+const accents = ['#17A398', '#FF6F59', '#7B61FF', '#FFC145', '#17A398', '#FF6F59', '#7B61FF', '#FFC145', '#17A398', '#FF6F59'];
+
+const GEN = {
+  correct: "Betul! คำที่เลือกเป็น Kata Adjektif เพราะใช้บอกลักษณะ สภาพ สี ขนาด ความรู้สึก หรือคุณสมบัติของสิ่งที่กล่าวถึง",
+  noun: "Cuba lagi! คำนามใช้เรียกบุคคล สิ่งของ สถานที่ หรือสิ่งต่าง ๆ ส่วน Kata Adjektif ใช้บอกลักษณะหรือคุณสมบัติ",
+  verb: "Perhatikan fungsi perkataan dalam ayat. ลองพิจารณาว่าคำนั้นบอกการกระทำหรือบอกลักษณะ"
+};
+
+const data = [
+  { ms: "Budak itu berlari pantas.", th: "เด็กคนนั้นวิ่งเร็ว", opts: [
+      {w:"budak", t:"noun"}, {w:"berlari", t:"verb"}, {w:"pantas", t:"adj"} ] },
+  { ms: "Kereta itu bergerak laju.", th: "รถคันนั้นเคลื่อนที่เร็ว", opts: [
+      {w:"kereta", t:"noun"}, {w:"bergerak", t:"verb"}, {w:"laju", t:"adj"} ] },
+  { ms: "Bunga di taman itu kelihatan cantik.", th: "ดอกไม้ในสวนนั้นดูสวยงาม", opts: [
+      {w:"bunga", t:"noun"}, {w:"kelihatan", t:"verb"}, {w:"cantik", t:"adj"} ] },
+  { ms: "Dia memakai baju merah.", th: "เขาสวมเสื้อสีแดง", opts: [
+      {w:"baju", t:"noun", msg:"Belum tepat! Baju เป็น Kata Nama หมายถึง \u201cเสื้อ\u201d ส่วนคำที่บอกลักษณะของเสื้อคือ merah = สีแดง"},
+      {w:"memakai", t:"verb"}, {w:"merah", t:"adj"} ] },
+  { ms: "Mereka membina rumah besar.", th: "พวกเขาสร้างบ้านหลังใหญ่", opts: [
+      {w:"membina", t:"verb"}, {w:"rumah", t:"noun"}, {w:"besar", t:"adj"} ] },
+  { ms: "Buah durian itu berbau busuk.", th: "ผลทุเรียนนั้นมีกลิ่นเหม็น", opts: [
+      {w:"buah", t:"noun"}, {w:"berbau", t:"verb"}, {w:"busuk", t:"adj"} ] },
+  { ms: "Dia berasa gembira hari ini.", th: "วันนี้เขารู้สึกมีความสุข", opts: [
+      {w:"berasa", t:"verb", msg:"Belum tepat! berasa เป็น Kata Kerja ส่วน gembira เป็นคำที่บอกความรู้สึก จึงเป็น Kata Adjektif = มีความสุข"},
+      {w:"hari", t:"noun"},
+      {w:"gembira", t:"adj", msg:"Betul! gembira เป็น Kata Adjektif jenis Perasaan หมายถึง \u201cมีความสุข/ดีใจ\u201d"} ] },
+  { ms: "Ali menulis surat yang panjang.", th: "อาลีเขียนจดหมายฉบับยาว", opts: [
+      {w:"menulis", t:"verb"}, {w:"surat", t:"noun"}, {w:"panjang", t:"adj"} ] },
+  { ms: "Kopi itu terasa pahit.", th: "กาแฟถ้วยนั้นมีรสขม", opts: [
+      {w:"kopi", t:"noun"}, {w:"terasa", t:"verb"}, {w:"pahit", t:"adj"} ] },
+  { ms: "Adik saya tidur dengan nyenyak.", th: "น้องของฉันหลับสนิท", opts: [
+      {w:"adik", t:"noun"}, {w:"tidur", t:"verb"}, {w:"nyenyak", t:"adj"} ] }
+];
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const selections = new Array(data.length).fill(null);
+const qlist = document.getElementById('qlist');
+const scorePill = document.getElementById('scorePill');
+
+function updateScorePill() {
+  const answered = selections.filter(s => s !== null).length;
+  scorePill.textContent = `ตอบแล้ว ${answered} / ${data.length}`;
+}
+
+data.forEach((q, i) => {
+  const opts = shuffle(q.opts);
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.setProperty('--accent', accents[i % accents.length]);
+  card.innerHTML = `
+    <div class="sentence"><span class="qnum">${i+1}</span>${q.ms}</div>
+    <div class="gloss">${q.th}</div>
+    <div class="opts" id="opts-${i}"></div>
+    <div class="feedback" id="fb-${i}"></div>
+    <div class="answer-key" id="key-${i}"><b>เฉลย:</b> ${q.opts.find(o => o.t === 'adj').w}</div>
+  `;
+  qlist.appendChild(card);
+  const optsEl = card.querySelector('#opts-' + i);
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = o.w;
+    btn.addEventListener('click', () => {
+      selections[i] = o;
+      Array.from(optsEl.children).forEach(c => c.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('errMsg').style.display = 'none';
+      document.getElementById('fb-' + i).classList.remove('show');
+      updateScorePill();
+    });
+    optsEl.appendChild(btn);
+  });
+});
+updateScorePill();
+
+document.getElementById('keyBtn').addEventListener('click', () => {
+  const keys = document.querySelectorAll('.answer-key');
+  const showing = keys[0].classList.contains('show');
+  keys.forEach(k => k.classList.toggle('show', !showing));
+  document.getElementById('keyBtn').textContent = showing ? 'แสดงเฉลย' : 'ซ่อนเฉลย';
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  selections.fill(null);
+  data.forEach((q, i) => {
+    const optsEl = document.getElementById('opts-' + i);
+    Array.from(optsEl.children).forEach(c => {
+      c.classList.remove('selected', 'correct', 'wrong');
+      c.disabled = false;
+    });
+    document.getElementById('fb-' + i).classList.remove('show');
+    document.getElementById('key-' + i).classList.remove('show');
+  });
+  document.getElementById('keyBtn').textContent = 'แสดงเฉลย';
+  document.getElementById('summary').classList.remove('show', 'win', 'mid');
+  document.getElementById('errMsg').style.display = 'none';
+  updateScorePill();
+});
+
+document.getElementById('checkAllBtn').addEventListener('click', () => {
+  const errEl = document.getElementById('errMsg');
+  if (selections.some(s => s === null)) {
+    errEl.textContent = 'กรุณาเลือกคำตอบให้ครบทุกข้อก่อนตรวจคำตอบ (Sila lengkapkan semua jawapan)';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  let score = 0;
+  data.forEach((q, i) => {
+    const sel = selections[i];
+    const optsEl = document.getElementById('opts-' + i);
+    const fbEl = document.getElementById('fb-' + i);
+    Array.from(optsEl.children).forEach(btn => {
+      btn.disabled = true;
+      if (btn.textContent === sel.w) {
+        btn.classList.add(sel.t === 'adj' ? 'correct' : 'wrong');
+      }
+    });
+
+    let msg, cls;
+    if (sel.t === 'adj') {
+      score++;
+      msg = sel.msg || GEN.correct;
+      cls = 'correct';
+    } else {
+      msg = sel.msg || (sel.t === 'noun' ? GEN.noun : GEN.verb);
+      cls = sel.msg ? 'wrong' : 'warn';
+    }
+    fbEl.textContent = msg;
+    fbEl.className = 'feedback show ' + cls;
+  });
+
+  const summary = document.getElementById('summary');
+  summary.classList.add('show');
+  if (score === data.length) {
+    summary.classList.add('win');
+    summary.classList.remove('mid');
+    summary.innerHTML = '<h2>Tahniah! Semua jawapan betul!</h2><p>คุณสามารถระบุ Kata Adjektif ในประโยคได้ถูกต้องทั้งหมด เก่งมาก!</p>';
+  } else {
+    summary.classList.add('mid');
+    summary.classList.remove('win');
+    summary.innerHTML = `<h2>คะแนนของคุณ: ${score} / ${data.length}</h2><p>Cuba lagi! ทบทวนคำอธิบายในแต่ละข้อด้านบน หรือกด "แสดงเฉลย" เพื่อดูคำตอบที่ถูกต้อง</p>`;
+  }
+});
+</script>
+
+</body>
+</html>
